@@ -1,0 +1,629 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "RlA7nvoLT4dd",
+        "outputId": "b1d7d52e-10a9-4d17-8749-6cd19f462f06"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: langchain in /usr/local/lib/python3.12/dist-packages (1.2.12)\n",
+            "Requirement already satisfied: langgraph in /usr/local/lib/python3.12/dist-packages (1.1.2)\n",
+            "Requirement already satisfied: langchain-openai in /usr/local/lib/python3.12/dist-packages (1.1.12)\n",
+            "Requirement already satisfied: python-dotenv in /usr/local/lib/python3.12/dist-packages (1.2.2)\n",
+            "Requirement already satisfied: langchain-core<2.0.0,>=1.2.10 in /usr/local/lib/python3.12/dist-packages (from langchain) (1.2.21)\n",
+            "Requirement already satisfied: pydantic<3.0.0,>=2.7.4 in /usr/local/lib/python3.12/dist-packages (from langchain) (2.12.3)\n",
+            "Requirement already satisfied: langgraph-checkpoint<5.0.0,>=2.1.0 in /usr/local/lib/python3.12/dist-packages (from langgraph) (4.0.1)\n",
+            "Requirement already satisfied: langgraph-prebuilt<1.1.0,>=1.0.8 in /usr/local/lib/python3.12/dist-packages (from langgraph) (1.0.8)\n",
+            "Requirement already satisfied: langgraph-sdk<0.4.0,>=0.3.0 in /usr/local/lib/python3.12/dist-packages (from langgraph) (0.3.11)\n",
+            "Requirement already satisfied: xxhash>=3.5.0 in /usr/local/lib/python3.12/dist-packages (from langgraph) (3.6.0)\n",
+            "Requirement already satisfied: openai<3.0.0,>=2.26.0 in /usr/local/lib/python3.12/dist-packages (from langchain-openai) (2.28.0)\n",
+            "Requirement already satisfied: tiktoken<1.0.0,>=0.7.0 in /usr/local/lib/python3.12/dist-packages (from langchain-openai) (0.12.0)\n",
+            "Requirement already satisfied: jsonpatch<2.0.0,>=1.33.0 in /usr/local/lib/python3.12/dist-packages (from langchain-core<2.0.0,>=1.2.10->langchain) (1.33)\n",
+            "Requirement already satisfied: langsmith<1.0.0,>=0.3.45 in /usr/local/lib/python3.12/dist-packages (from langchain-core<2.0.0,>=1.2.10->langchain) (0.7.18)\n",
+            "Requirement already satisfied: packaging>=23.2.0 in /usr/local/lib/python3.12/dist-packages (from langchain-core<2.0.0,>=1.2.10->langchain) (26.0)\n",
+            "Requirement already satisfied: pyyaml<7.0.0,>=5.3.0 in /usr/local/lib/python3.12/dist-packages (from langchain-core<2.0.0,>=1.2.10->langchain) (6.0.3)\n",
+            "Requirement already satisfied: tenacity!=8.4.0,<10.0.0,>=8.1.0 in /usr/local/lib/python3.12/dist-packages (from langchain-core<2.0.0,>=1.2.10->langchain) (9.1.4)\n",
+            "Requirement already satisfied: typing-extensions<5.0.0,>=4.7.0 in /usr/local/lib/python3.12/dist-packages (from langchain-core<2.0.0,>=1.2.10->langchain) (4.15.0)\n",
+            "Requirement already satisfied: uuid-utils<1.0,>=0.12.0 in /usr/local/lib/python3.12/dist-packages (from langchain-core<2.0.0,>=1.2.10->langchain) (0.14.1)\n",
+            "Requirement already satisfied: ormsgpack>=1.12.0 in /usr/local/lib/python3.12/dist-packages (from langgraph-checkpoint<5.0.0,>=2.1.0->langgraph) (1.12.2)\n",
+            "Requirement already satisfied: httpx>=0.25.2 in /usr/local/lib/python3.12/dist-packages (from langgraph-sdk<0.4.0,>=0.3.0->langgraph) (0.28.1)\n",
+            "Requirement already satisfied: orjson>=3.11.5 in /usr/local/lib/python3.12/dist-packages (from langgraph-sdk<0.4.0,>=0.3.0->langgraph) (3.11.7)\n",
+            "Requirement already satisfied: anyio<5,>=3.5.0 in /usr/local/lib/python3.12/dist-packages (from openai<3.0.0,>=2.26.0->langchain-openai) (4.12.1)\n",
+            "Requirement already satisfied: distro<2,>=1.7.0 in /usr/local/lib/python3.12/dist-packages (from openai<3.0.0,>=2.26.0->langchain-openai) (1.9.0)\n",
+            "Requirement already satisfied: jiter<1,>=0.10.0 in /usr/local/lib/python3.12/dist-packages (from openai<3.0.0,>=2.26.0->langchain-openai) (0.13.0)\n",
+            "Requirement already satisfied: sniffio in /usr/local/lib/python3.12/dist-packages (from openai<3.0.0,>=2.26.0->langchain-openai) (1.3.1)\n",
+            "Requirement already satisfied: tqdm>4 in /usr/local/lib/python3.12/dist-packages (from openai<3.0.0,>=2.26.0->langchain-openai) (4.67.3)\n",
+            "Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.12/dist-packages (from pydantic<3.0.0,>=2.7.4->langchain) (0.7.0)\n",
+            "Requirement already satisfied: pydantic-core==2.41.4 in /usr/local/lib/python3.12/dist-packages (from pydantic<3.0.0,>=2.7.4->langchain) (2.41.4)\n",
+            "Requirement already satisfied: typing-inspection>=0.4.2 in /usr/local/lib/python3.12/dist-packages (from pydantic<3.0.0,>=2.7.4->langchain) (0.4.2)\n",
+            "Requirement already satisfied: regex>=2022.1.18 in /usr/local/lib/python3.12/dist-packages (from tiktoken<1.0.0,>=0.7.0->langchain-openai) (2025.11.3)\n",
+            "Requirement already satisfied: requests>=2.26.0 in /usr/local/lib/python3.12/dist-packages (from tiktoken<1.0.0,>=0.7.0->langchain-openai) (2.32.4)\n",
+            "Requirement already satisfied: idna>=2.8 in /usr/local/lib/python3.12/dist-packages (from anyio<5,>=3.5.0->openai<3.0.0,>=2.26.0->langchain-openai) (3.11)\n",
+            "Requirement already satisfied: certifi in /usr/local/lib/python3.12/dist-packages (from httpx>=0.25.2->langgraph-sdk<0.4.0,>=0.3.0->langgraph) (2026.2.25)\n",
+            "Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.12/dist-packages (from httpx>=0.25.2->langgraph-sdk<0.4.0,>=0.3.0->langgraph) (1.0.9)\n",
+            "Requirement already satisfied: h11>=0.16 in /usr/local/lib/python3.12/dist-packages (from httpcore==1.*->httpx>=0.25.2->langgraph-sdk<0.4.0,>=0.3.0->langgraph) (0.16.0)\n",
+            "Requirement already satisfied: jsonpointer>=1.9 in /usr/local/lib/python3.12/dist-packages (from jsonpatch<2.0.0,>=1.33.0->langchain-core<2.0.0,>=1.2.10->langchain) (3.0.0)\n",
+            "Requirement already satisfied: requests-toolbelt>=1.0.0 in /usr/local/lib/python3.12/dist-packages (from langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.2.10->langchain) (1.0.0)\n",
+            "Requirement already satisfied: zstandard>=0.23.0 in /usr/local/lib/python3.12/dist-packages (from langsmith<1.0.0,>=0.3.45->langchain-core<2.0.0,>=1.2.10->langchain) (0.25.0)\n",
+            "Requirement already satisfied: charset_normalizer<4,>=2 in /usr/local/lib/python3.12/dist-packages (from requests>=2.26.0->tiktoken<1.0.0,>=0.7.0->langchain-openai) (3.4.6)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.12/dist-packages (from requests>=2.26.0->tiktoken<1.0.0,>=0.7.0->langchain-openai) (2.5.0)\n"
+          ]
+        }
+      ],
+      "source": [
+        "!pip install langchain langgraph langchain-openai python-dotenv"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import os\n",
+        "os.environ[\"OPENAI_API_KEY\"] = \"confidential"\n",
+        "print(\"Key loaded:\", os.getenv(\"OPENAI_API_KEY\") is not None)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "y6y-3eKYUH7j",
+        "outputId": "783d05c7-2736-45cd-96fb-eb10d88db4a4"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Key loaded: True\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from typing import TypedDict\n",
+        "from langchain_openai import ChatOpenAI\n",
+        "from langgraph.graph import StateGraph, END\n",
+        "from langgraph.checkpoint.memory import MemorySaver"
+      ],
+      "metadata": {
+        "id": "mWwHONGYUOVx"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "llm = ChatOpenAI(model=\"gpt-4o-mini\", temperature=0)"
+      ],
+      "metadata": {
+        "id": "kgWAWqtXUWxO"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "class ChatState(TypedDict):\n",
+        "    user_input: str\n",
+        "    intent: str\n",
+        "    response: str\n",
+        "    history: list"
+      ],
+      "metadata": {
+        "id": "iIlhh6_kUZ7C"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "SYSTEM_PROMPT = \"\"\"\n",
+        "You are HighKeySupps Customer Service & Sales Assistant.\n",
+        "\n",
+        "You help customers with:\n",
+        "1. Order status questions\n",
+        "2. Refund and return policy questions\n",
+        "3. Product recommendations\n",
+        "\n",
+        "Be friendly, professional, and concise.\n",
+        "Use prior conversation context when relevant.\n",
+        "If the question does not fit one of the three categories, politely say you can only help with orders, refunds, and product recommendations.\n",
+        "\"\"\""
+      ],
+      "metadata": {
+        "id": "ou2V5kxCUb5o"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def router(state: ChatState):\n",
+        "    text = state[\"user_input\"].lower()\n",
+        "\n",
+        "    if any(word in text for word in [\"order\", \"track\", \"tracking\", \"ship\", \"shipping\", \"package\"]):\n",
+        "        return {\"intent\": \"order_status\"}\n",
+        "    elif any(word in text for word in [\"refund\", \"return\", \"exchange\", \"policy\"]):\n",
+        "        return {\"intent\": \"refund_policy\"}\n",
+        "    elif any(word in text for word in [\"recommend\", \"suggest\", \"best\", \"protein\", \"pre-workout\", \"caffeine\", \"muscle\"]):\n",
+        "        return {\"intent\": \"product_recommendation\"}\n",
+        "    else:\n",
+        "        return {\"intent\": \"unknown\"}"
+      ],
+      "metadata": {
+        "id": "xNIDOfthUeD0"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def order_status_agent(state: ChatState):\n",
+        "    user_text = state[\"user_input\"]\n",
+        "    history = state.get(\"history\", [])\n",
+        "\n",
+        "    prompt = f\"\"\"\n",
+        "    {SYSTEM_PROMPT}\n",
+        "\n",
+        "    Conversation history:\n",
+        "    {history}\n",
+        "\n",
+        "    You are the Order Status Agent.\n",
+        "    Answer order tracking and shipping questions.\n",
+        "\n",
+        "    If no order number is provided, ask the user for it.\n",
+        "    If an order number is provided, simulate a helpful tracking-style response.\n",
+        "\n",
+        "    User message: {user_text}\n",
+        "    \"\"\"\n",
+        "\n",
+        "    reply = llm.invoke(prompt).content\n",
+        "\n",
+        "    updated_history = history + [\n",
+        "        f\"User: {user_text}\",\n",
+        "        f\"Assistant: {reply}\"\n",
+        "    ]\n",
+        "\n",
+        "    return {\n",
+        "        \"response\": reply,\n",
+        "        \"history\": updated_history\n",
+        "    }"
+      ],
+      "metadata": {
+        "id": "xfpGLdhKUhiz"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def refund_policy_agent(state: ChatState):\n",
+        "    user_text = state[\"user_input\"]\n",
+        "    history = state.get(\"history\", [])\n",
+        "\n",
+        "    prompt = f\"\"\"\n",
+        "    {SYSTEM_PROMPT}\n",
+        "\n",
+        "    Conversation history:\n",
+        "    {history}\n",
+        "\n",
+        "    You are the Refund Policy Agent.\n",
+        "    Answer refund, return, and exchange questions.\n",
+        "\n",
+        "    Use this sample policy:\n",
+        "    - Returns allowed within 30 days\n",
+        "    - Product must not be heavily used\n",
+        "    - Opened items may be eligible only for store credit\n",
+        "    - Exchanges are allowed for damaged or incorrect items\n",
+        "\n",
+        "    If the user says \"it\" or refers to a product indirectly, use the conversation history to figure out what product they mean.\n",
+        "\n",
+        "    User message: {user_text}\n",
+        "    \"\"\"\n",
+        "\n",
+        "    reply = llm.invoke(prompt).content\n",
+        "\n",
+        "    updated_history = history + [\n",
+        "        f\"User: {user_text}\",\n",
+        "        f\"Assistant: {reply}\"\n",
+        "    ]\n",
+        "\n",
+        "    return {\n",
+        "        \"response\": reply,\n",
+        "        \"history\": updated_history\n",
+        "    }"
+      ],
+      "metadata": {
+        "id": "cHgkUiSPUjVj"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def product_recommendation_agent(state: ChatState):\n",
+        "    user_text = state[\"user_input\"]\n",
+        "    history = state.get(\"history\", [])\n",
+        "\n",
+        "    prompt = f\"\"\"\n",
+        "    {SYSTEM_PROMPT}\n",
+        "\n",
+        "    Conversation history:\n",
+        "    {history}\n",
+        "\n",
+        "    You are the Product Recommendation Agent.\n",
+        "    Recommend supplements based on the customer's goals.\n",
+        "\n",
+        "    Product options:\n",
+        "    - Whey Protein Isolate: for muscle growth and recovery\n",
+        "    - Beginner Pre-Workout: light energy support\n",
+        "    - Stim-Free Pre-Workout: for users sensitive to caffeine\n",
+        "    - Creatine Monohydrate: for strength and performance\n",
+        "\n",
+        "    Use the conversation history when the user gives follow-up details like \"I’m sensitive to caffeine.\"\n",
+        "\n",
+        "    User message: {user_text}\n",
+        "    \"\"\"\n",
+        "\n",
+        "    reply = llm.invoke(prompt).content\n",
+        "\n",
+        "    updated_history = history + [\n",
+        "        f\"User: {user_text}\",\n",
+        "        f\"Assistant: {reply}\"\n",
+        "    ]\n",
+        "\n",
+        "    return {\n",
+        "        \"response\": reply,\n",
+        "        \"history\": updated_history\n",
+        "    }"
+      ],
+      "metadata": {
+        "id": "-Nx7H1ODUk7Z"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def fallback_agent(state: ChatState):\n",
+        "    user_text = state[\"user_input\"]\n",
+        "    history = state.get(\"history\", [])\n",
+        "\n",
+        "    reply = \"I can help with order status, refund policy, or product recommendations. Please ask about one of those.\"\n",
+        "\n",
+        "    updated_history = history + [\n",
+        "        f\"User: {user_text}\",\n",
+        "        f\"Assistant: {reply}\"\n",
+        "    ]\n",
+        "\n",
+        "    return {\n",
+        "        \"response\": reply,\n",
+        "        \"history\": updated_history\n",
+        "    }"
+      ],
+      "metadata": {
+        "id": "Sw6MbnZjUnD6"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "builder = StateGraph(ChatState)\n",
+        "\n",
+        "builder.add_node(\"router\", router)\n",
+        "builder.add_node(\"order_status_agent\", order_status_agent)\n",
+        "builder.add_node(\"refund_policy_agent\", refund_policy_agent)\n",
+        "builder.add_node(\"product_recommendation_agent\", product_recommendation_agent)\n",
+        "builder.add_node(\"fallback_agent\", fallback_agent)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "QJJYfb48Uorp",
+        "outputId": "1b839277-4d50-419e-b030-ba6741247a19"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<langgraph.graph.state.StateGraph at 0x799db37774a0>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 12
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "builder.set_entry_point(\"router\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "858mM9JYUp0S",
+        "outputId": "b70ec8c3-1d8a-42d6-8dc0-9b592b126b35"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<langgraph.graph.state.StateGraph at 0x799db37774a0>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 13
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def route_by_intent(state: ChatState):\n",
+        "    if state[\"intent\"] == \"order_status\":\n",
+        "        return \"order_status_agent\"\n",
+        "    elif state[\"intent\"] == \"refund_policy\":\n",
+        "        return \"refund_policy_agent\"\n",
+        "    elif state[\"intent\"] == \"product_recommendation\":\n",
+        "        return \"product_recommendation_agent\"\n",
+        "    else:\n",
+        "        return \"fallback_agent\""
+      ],
+      "metadata": {
+        "id": "mt1dw0hlUrKD"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "builder.add_conditional_edges(\n",
+        "    \"router\",\n",
+        "    route_by_intent,\n",
+        "    {\n",
+        "        \"order_status_agent\": \"order_status_agent\",\n",
+        "        \"refund_policy_agent\": \"refund_policy_agent\",\n",
+        "        \"product_recommendation_agent\": \"product_recommendation_agent\",\n",
+        "        \"fallback_agent\": \"fallback_agent\",\n",
+        "    }\n",
+        ")\n",
+        "\n",
+        "builder.add_edge(\"order_status_agent\", END)\n",
+        "builder.add_edge(\"refund_policy_agent\", END)\n",
+        "builder.add_edge(\"product_recommendation_agent\", END)\n",
+        "builder.add_edge(\"fallback_agent\", END)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "uNwnzKaFUsgE",
+        "outputId": "518b951b-b153-4e2c-cd22-821001b0bf4e"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<langgraph.graph.state.StateGraph at 0x799db37774a0>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 15
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "memory = MemorySaver()\n",
+        "graph = builder.compile(checkpointer=memory)"
+      ],
+      "metadata": {
+        "id": "Q_gGQ-GoUuYr"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "config = {\"configurable\": {\"thread_id\": \"demo-1\"}}"
+      ],
+      "metadata": {
+        "id": "giIbb9dWUwE7"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "result1 = graph.invoke(\n",
+        "    {\"user_input\": \"Can you recommend something for muscle gain?\", \"history\": []},\n",
+        "    config=config\n",
+        ")\n",
+        "print(result1[\"response\"])\n",
+        "\n",
+        "result2 = graph.invoke(\n",
+        "    {\"user_input\": \"I'm sensitive to caffeine though.\", \"history\": result1[\"history\"]},\n",
+        "    config=config\n",
+        ")\n",
+        "print(result2[\"response\"])\n",
+        "\n",
+        "result3 = graph.invoke(\n",
+        "    {\"user_input\": \"Can I return it later if it doesn't work for me?\", \"history\": result2[\"history\"]},\n",
+        "    config=config\n",
+        ")\n",
+        "print(result3[\"response\"])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "fjOyVTC1Uxlx",
+        "outputId": "2f4ba7e3-9ba3-4ca4-deef-cd9e46ca9d4b"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "For muscle gain, I recommend our Whey Protein Isolate. It's great for muscle growth and recovery after workouts. Would you like to know more about it or perhaps combine it with another product?\n",
+            "Since you're sensitive to caffeine, I recommend our Stim-Free Pre-Workout. It provides energy support without the jitters that caffeine can cause. Would you like to know more about its benefits or how to use it?\n",
+            "Yes, you can return it within 30 days if it doesn't work for you, as long as the product is not heavily used. Please note that opened items may only be eligible for store credit. If you have any further questions or need assistance with the return process, feel free to ask!\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import os\n",
+        "key = os.getenv(\"OPENAI_API_KEY\")\n",
+        "print(\"Loaded:\", key is not None)\n",
+        "print(\"Starts with sk-:\", key.startswith(\"sk-\") if key else False)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "QufF3d4UWCrK",
+        "outputId": "cc3549cb-e8ac-44fb-c229-c50ba33c5305"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Loaded: True\n",
+            "Starts with sk-: True\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "result1 = graph.invoke(\n",
+        "    {\"user_input\": \"Can you recommend something for muscle gain?\", \"history\": []},\n",
+        "    config=config\n",
+        ")\n",
+        "print(\"Bot:\", result1[\"response\"])\n",
+        "\n",
+        "result2 = graph.invoke(\n",
+        "    {\"user_input\": \"I'm sensitive to caffeine though.\", \"history\": result1[\"history\"]},\n",
+        "    config=config\n",
+        ")\n",
+        "print(\"Bot:\", result2[\"response\"])\n",
+        "\n",
+        "result3 = graph.invoke(\n",
+        "    {\"user_input\": \"Can I return it later if it doesn't work for me?\", \"history\": result2[\"history\"]},\n",
+        "    config=config\n",
+        ")\n",
+        "print(\"Bot:\", result3[\"response\"])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "zoGbnMa9WLg6",
+        "outputId": "a50da027-f487-49a0-af0a-3ca7208388a3"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Bot: For muscle gain, I recommend our Whey Protein Isolate. It's great for muscle growth and recovery after workouts. Would you like to know more about how to incorporate it into your routine?\n",
+            "Bot: Since you're sensitive to caffeine, I recommend our Stim-Free Pre-Workout. It provides energy support without the jitters that caffeine can cause. Would you like to know more about its benefits or how to use it?\n",
+            "Bot: Yes, you can return it within 30 days as long as the product is not heavily used. If the item is opened, it may only be eligible for store credit. If you have any further questions or need assistance with the return process, feel free to ask!\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "order_result1 = graph.invoke(\n",
+        "    {\"user_input\": \"Where is my order?\", \"history\": []},\n",
+        "    config={\"configurable\": {\"thread_id\": \"demo-2\"}}\n",
+        ")\n",
+        "print(\"Bot:\", order_result1[\"response\"])\n",
+        "\n",
+        "order_result2 = graph.invoke(\n",
+        "    {\"user_input\": \"My order number is 45821.\", \"history\": order_result1[\"history\"]},\n",
+        "    config={\"configurable\": {\"thread_id\": \"demo-2\"}}\n",
+        ")\n",
+        "print(\"Bot:\", order_result2[\"response\"])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "oF7EgyOfY5aU",
+        "outputId": "0eccabf7-8869-416e-af62-da2875abdf36"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Bot: Could you please provide your order number? I'll be happy to help you track your order!\n",
+            "Bot: Thank you for providing your order number, 45821! \n",
+            "\n",
+            "Your order is currently being processed and is expected to ship within the next 1-2 business days. Once it ships, you will receive a confirmation email with tracking information. If you have any other questions or need further assistance, feel free to ask!\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
